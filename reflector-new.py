@@ -8,8 +8,19 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 st.title("LLP Reflector")
 
 st.markdown("""
-This app helps generate reflections for anaesthetic cases and links them relevant to Stage 3 RCoA Key Capabiltities.
+This app helps generate reflections for anaesthetic cases and links them relevant RCoA Key Capabiltities.
 """)
+
+
+
+assistants = {
+    "Stage 1": "asst_BlfkrEk2hCqj3GJ8xGbA6Ec9",
+    "Stage 2": "asst_HMy6bcRxj7306vVp9X1WNQCl",
+    "Stage 3": "asst_VYi6rqjobkudVZpnnowv4tJF",
+}
+
+
+
 
 # 1. Attempt to retrieve assistant once, e.g. on app load or in session state
 if "assistant" not in st.session_state:
@@ -17,7 +28,7 @@ if "assistant" not in st.session_state:
         # Retrieve returns an assistant object with .id, .name, etc.
         assistant = openai.beta.assistants.retrieve("asst_CFGa7zG3plj8gNr0uXFzuaK4")
         st.session_state["assistant"] = assistant
-        st.success("Assistant retrieved successfully.")
+        st.success(f"Assistant retrieved successfully. {assistant.id}")
     except Exception as e:
         st.error(f"Error retrieving assistant: {e}")
 
@@ -31,15 +42,32 @@ if "thread_id" not in st.session_state:
     except Exception as e:
         st.error(f"Failed to create a new thread: {e}")
 
+
+selected_stage = st.selectbox(
+    "Select your training stage",
+    ("Stage 1", "Stage 2", "Stage 3"),
+)
+
+
+
 # 3. A text input for the reflection prompt (or any other user prompt)
 user_prompt = st.text_area(
     "Enter your message or reflection prompt:",
-    value="Write a reflection on an anaesthetic for an emergency craniotomy for a patient with severe aortic stenosis. "
-          "Consider CV stability, high NELA score, post-op ICU care, and use of epidural for analgesia."
+    value="Write a reflection on an anaesthetic for an emergency laparotomy for a patient with severe aortic stenosis. "
+          "Consider CV stability, high NELA score, post-op ICU care and thoracic epidural for analgesia."
 )
 
 # 4. Button to send the user’s message
 if st.button("Send Reflection Prompt"):
+
+    try:
+        # Retrieve returns an assistant object with .id, .name, etc.
+        assistant = openai.beta.assistants.retrieve(assistants[selected_stage])
+        st.session_state["assistant"] = assistant
+        st.success(f"Assistant retrieved successfully. {assistant.id}")
+    except Exception as e:
+        st.error(f"Error retrieving assistant: {e}")
+
     if user_prompt.strip():
         try:
             # Add a user message to the existing thread
