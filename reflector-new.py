@@ -23,7 +23,7 @@ if "thread_id" not in st.session_state:
     try:
         thread = openai.beta.threads.create()
         st.session_state["thread_id"] = thread.id
-        st.success(f"Created new thread with ID: {thread.id}")
+        # st.success(f"Created new thread with ID: {thread.id}")
     except Exception as e:
         st.error(f"Failed to create a new thread: {e}")
 
@@ -46,7 +46,7 @@ if st.button("Send Reflection Prompt"):
         try:
             assistant = openai.beta.assistants.retrieve(assistants[selected_stage])
             st.session_state["assistant"] = assistant
-            st.success(f"Assistant retrieved successfully. ID: {assistant.id}")
+            st.success(f"Assistant retrieved successfully for {selected_stage}")
         except Exception as e:
             st.error(f"Error retrieving assistant: {e}")
             st.stop()
